@@ -1,9 +1,0 @@
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/controller/AdminCardManagementControllerIT.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/controller/AdminUserManagementControllerIT.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/controller/AuthControllerIT.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/controller/CardControllerIT.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/service/AdminCardManagementServiceTest.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/service/AdminUserManagementServiceTest.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/service/AuthenticationServiceTest.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/service/CardServiceTest.java
-/mnt/c/Users/arapo/IdeaProjects/bank_rest/src/test/java/com/example/bankcards/service/RoleServiceTest.java
