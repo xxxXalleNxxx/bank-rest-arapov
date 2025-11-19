@@ -1,124 +1,64 @@
-Bank Card Management System
+# Bank Card Management System
+
 Система управления банковскими картами с ролевой моделью доступа и безопасными транзакциями.
 
-🚀 Быстрый старт
-1. Клонирование репозитория
-bash
-git clone <url-репозитория>
-cd card-management-system
-2. Запуск приложения
-bash
-docker-compose up -d
-Приложение будет доступно по адресу: http://localhost:8080
+## 🚀 Быстрый старт
 
-🔐 Тестирование функциональности
-1. Регистрация пользователей
-Регистрация Администратора:
+### 1. Клонирование репозитория
+#### - git clone https://github.com/xxxXalleNxxx/bank-rest-arapov.git
+#### - cd card-management-system
 
-bash
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "password": "admin123",
-    "email": "admin@bank.com",
-    "role": "ADMIN"
-  }'
-Регистрация Пользователя:
+### 2. Запуск приложения
+#### - docker-compose up -d
 
-bash
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "user1",
-    "password": "user123",
-    "email": "user1@bank.com",
-    "role": "USER"
-  }'
-2. Авторизация и получение токенов
-Авторизация Администратора:
+Приложение будет доступно по адресу: `http://localhost:8080`
 
-bash
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "password": "admin123"
-  }'
-Ответ:
+## 🔐 Тестирование функциональности
 
-json
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tokenType": "Bearer"
-}
-Авторизация Пользователя:
+### 1. Регистрация пользователей
 
-bash
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "user1",
-    "password": "user123"
-  }'
-Сохраните полученные токены для следующих запросов.
+**Регистрация Администратора:**
+#### curl -X POST http://localhost:8080/api/auth/register -H "Content-Type: application/json" -d 
+```json
+ {"username": "admin", "password": "admin123", "email": "admin@bank.com", "role": "ADMIN"}
+```
 
-📋 Тестирование эндпоинтов
-Для Администратора (используйте admin token)
-Создание карты:
+**Регистрация Пользователя:**
+curl -X POST http://localhost:8080/api/auth/register -H "Content-Type: application/json" -d 
+```json
+{"username": "user1", "password": "user123", "email": "user1@bank.com", "role": "USER"}
+```
 
-bash
-curl -X POST http://localhost:8080/api/cards \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "cardNumber": "4111111111111234",
-    "ownerName": "IVAN IVANOV",
-    "expiryDate": "12/25",
-    "balance": 1000.00,
-    "userId": 2
-  }'
-Просмотр всех карт:
+### 2. Авторизация и получение токенов
 
-bash
-curl -X GET http://localhost:8080/api/cards \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
-Блокировка карты:
+**Авторизация Администратора:**
+curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d 
+```json
+{"username": "admin", "password": "admin123"}
+```
 
-bash
-curl -X PUT http://localhost:8080/api/cards/1/block \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
-Для Пользователя (используйте user token)
-Просмотр своих карт:
+**Ответ:**
+```json
+{"accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "tokenType": "Bearer"}
+```
+**Авторизация Пользователя:**
 
-bash
-curl -X GET http://localhost:8080/api/cards/my-cards \
-  -H "Authorization: Bearer YOUR_USER_TOKEN"
-Перевод между картами:
+curl -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d 
+```json
+'{"username": "user1", "password": "user123"}'
+```
+### Сохраните полученные токены для следующих запросов.
 
-bash
-curl -X POST http://localhost:8080/api/transfers \
-  -H "Authorization: Bearer YOUR_USER_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fromCardId": 1,
-    "toCardId": 2,
-    "amount": 100.00
-  }'
-Запрос на блокировку карты:
+## 📋 Тестирование эндпоинтов
+#### Для Администратора (используйте admin token)
+#### Для Пользователя (используйте user token)
+### Настраивать роль через users_roles таблицу, где ROLE_ADMIN = id 2
 
-bash
-curl -X POST http://localhost:8080/api/cards/1/block-request \
-  -H "Authorization: Bearer YOUR_USER_TOKEN"
-📊 Документация API
-После запуска приложения документация доступна по адресу:
+## 📊 Документация API
+После запуска приложения документация эндпоинтов и моделей доступна через файл docs/openapi.yaml:
 
-Swagger UI: http://localhost:8080/swagger-ui.html
-
-OpenAPI спецификация: http://localhost:8080/v3/api-docs
-
-🛠 Технические детали
-База данных: PostgreSQL (порт 5432)
+## 🛠 Технические детали
+База данных: MySQL (порт 3306)
 
 Миграции: Liquibase (автоматически применяются при запуске)
 
@@ -126,9 +66,8 @@ OpenAPI спецификация: http://localhost:8080/v3/api-docs
 
 Документация: OpenAPI 3.0
 
-🔧 Остановка приложения
-bash
+## 🔧 Остановка приложения
 docker-compose down
-📞 Поддержка
-При возникновении вопросов можете писать в tg - @XALLEN1
+## 📞 Поддержка
+При возникновении проблем пишите мне в Telegram - **[XALLEN1](https://t.me/XALLEN1)**
 
