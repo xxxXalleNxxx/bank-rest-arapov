@@ -1,1 +1,609 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: 3.0.3
+info:
+  title: Bank REST API
+  version: 1.0.0
+  description: API для управления банковскими картами и пользователями
+
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер
+
+paths:
+  /api/v1/cards:
+    get:
+      summary: Получить карты пользователя с фильтрацией и пагинацией
+      tags:
+        - Cards
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Поиск по номеру карты
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/CardStatus'
+          description: Фильтр по статусу карты
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 0
+            default: 0
+          description: Номер страницы
+        - name: size
+          in: query
+          schema:
+            type: integer
+            example: 10
+            default: 10
+          description: Размер страницы
+      responses:
+        '200':
+          description: Страница с отфильтрованными картами
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageCardDto'
+
+  /api/v1/cards/{cardId}/request-block:
+    post:
+      summary: Запрос на блокировку карты
+      tags:
+        - Cards
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+          description: ID карты
+        - name: reason
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "Утеряна"
+          description: Причина блокировки
+      responses:
+        '200':
+          description: Запрос на блокировку отправлен
+
+  /api/v1/cards/transfer:
+    post:
+      summary: Перевод между картами
+      tags:
+        - Cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: Перевод выполнен успешно
+        '400':
+          description: Неверные параметры перевода
+
+  /api/v1/cards/{cardId}/balance:
+    get:
+      summary: Получить баланс карты
+      tags:
+        - Cards
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Баланс карты
+          content:
+            application/json:
+              schema:
+                type: number
+                example: 1500.75
+
+  /api/v1/admin/cards:
+    get:
+      summary: Получить все карты (админ)
+      tags:
+        - Admin Cards
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            example: 20
+        - name: sort
+          in: query
+          schema:
+            type: string
+            example: "id,asc"
+      responses:
+        '200':
+          description: Страница со всеми картами
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageCardDto'
+
+    post:
+      summary: Создать новую карту (админ)
+      tags:
+        - Admin Cards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCardRequest'
+      responses:
+        '201':
+          description: Карта создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardDto'
+
+  /api/v1/admin/cards/{cardId}/block:
+    post:
+      summary: Блокировка карты (админ)
+      tags:
+        - Admin Cards
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Карта заблокирована
+
+  /api/v1/admin/cards/{cardId}/activate:
+    post:
+      summary: Активация карты (админ)
+      tags:
+        - Admin Cards
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '200':
+          description: Карта активирована
+
+  /api/v1/admin/cards/{cardId}:
+    delete:
+      summary: Удалить карту (админ)
+      tags:
+        - Admin Cards
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 123
+      responses:
+        '204':
+          description: Карта удалена
+
+  /api/v1/admin/users:
+    get:
+      summary: Получить всех пользователей
+      tags:
+        - Admin Users
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: Страница с пользователями
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageUserDto'
+
+    post:
+      summary: Создать пользователя
+      tags:
+        - Admin Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /api/v1/admin/users/{userId}:
+    get:
+      summary: Получить пользователя по ID
+      tags:
+        - Admin Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Данные пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+    put:
+      summary: Обновить пользователя
+      tags:
+        - Admin Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Пользователь обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+    delete:
+      summary: Удалить пользователя
+      tags:
+        - Admin Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '204':
+          description: Пользователь удален
+
+  /api/v1/auth/register:
+    post:
+      summary: Регистрация пользователя
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Пользователь зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+
+  /api/v1/auth/login:
+    post:
+      summary: Вход в систему
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JwtRequest'
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+
+  /api/v1/auth/validate:
+    get:
+      summary: Валидация токена
+      tags:
+        - Auth
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Результат валидации токена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateTokenResponse'
+
+components:
+  schemas:
+    PageCardDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardDto'
+        totalElements:
+          type: integer
+          example: 100
+        totalPages:
+          type: integer
+          example: 5
+        size:
+          type: integer
+          example: 20
+        number:
+          type: integer
+          example: 0
+
+    CardStatus:
+      type: string
+      enum: [ ACTIVATED, BLOCKED, PENDING ]
+      example: "ACTIVATED"
+      description: Статус карты
+
+    PageUserDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDto'
+        totalElements:
+          type: integer
+          example: 50
+        totalPages:
+          type: integer
+          example: 5
+        size:
+          type: integer
+          example: 10
+        number:
+          type: integer
+          example: 0
+
+    CardDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        maskedCardNumber:
+          type: string
+          example: "**** 1234"
+        expiryDate:
+          type: string
+          format: date
+          example: "2025-12-31"
+        balance:
+          type: number
+          example: 1500.75
+        owner:
+          $ref: '#/components/schemas/UserDto'
+        status:
+          type: string
+          enum: [ ACTIVATED, BLOCKED, PENDING ]
+          example: "ACTIVATED"
+
+    CreateCardRequest:
+      type: object
+      required:
+        - cardNumber
+        - ownerId
+        - expiryDate
+      properties:
+        cardNumber:
+          type: string
+          example: "1234567812345678"
+        ownerId:
+          type: integer
+          example: 1
+        expiryDate:
+          type: string
+          format: date
+          example: "2025-12-31"
+        initialBalance:
+          type: number
+          example: 0.0
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          example: "Иван"
+        lastName:
+          type: string
+          example: "Иванов"
+        email:
+          type: string
+          example: "ivan@example.com"
+        cardsCount:
+          type: integer
+          example: 3
+        totalBalance:
+          type: number
+          example: 4500.25
+
+    CreateUserRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+      properties:
+        firstName:
+          type: string
+          example: "Иван"
+          minLength: 2
+          maxLength: 15
+        lastName:
+          type: string
+          example: "Иванов"
+          minLength: 2
+          maxLength: 15
+        email:
+          type: string
+          example: "ivan@example.com"
+        password:
+          type: string
+          example: "password123"
+          minLength: 6
+
+    JwtRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: "ivan@example.com"
+        password:
+          type: string
+          example: "password123"
+
+    JwtResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        type:
+          type: string
+          example: "Bearer"
+
+    ValidateTokenResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Token is valid"
+        userDetails:
+          type: object
+          properties:
+            userId:
+              type: integer
+              example: 1
+            email:
+              type: string
+              example: "ivan@example.com"
+
+    TransferRequest:
+      type: object
+      required:
+        - fromCardId
+        - toCardId
+        - amount
+      properties:
+        fromCardId:
+          type: integer
+          example: 1
+        toCardId:
+          type: integer
+          example: 2
+        amount:
+          type: number
+          example: 1000.0
+        comment:
+          type: string
+          example: "Перевод средств"
+
+    CardSearchRequest:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        sort:
+          type: string
+          example: "createdAt,desc"
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        firstname:
+          type: string
+          example: "Петр"
+          minLength: 2
+          maxLength: 15
+          description: Имя пользователя
+        lastName:
+          type: string
+          example: "Петров"
+          minLength: 2
+          maxLength: 15
+          description: Фамилия пользователя
+        email:
+          type: string
+          example: "petr@example.com"
+          description: Email пользователя
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: [ ]
